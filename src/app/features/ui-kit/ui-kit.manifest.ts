@@ -2713,7 +2713,7 @@ export const MANIFIESTO_UI_KIT: readonly FichaComponente[] = [
     "capa": "ui",
     "importacion": "@siaf/ui/collapsible-card/collapsible-card.component",
     "archivo": "src/app/shared/ui/collapsible-card/collapsible-card.component.ts",
-    "descripcion": "Tarjeta colapsable (Figma UI KIT, nodo 19632:66 «accordion/collapsible_card»): cabecera de 60 px con una\nmarca azul a la izquierda, la flecha, la información del ítem y una X para quitarlo; al abrir, el detalle\naparece debajo separado por una línea.\n\nLa cabecera se proyecta con el atributo `card-info` y el detalle con el contenido sin atributo, así que\nsirve para cualquier ítem de una lista (un documento, un asiento…). `[(expanded)]` controla si está\nabierta; la X emite `closed` y se oculta con `[closable]=\"false\"`. El padre decide qué hacer al cerrar.",
+    "descripcion": "Tarjeta colapsable (Figma UI KIT, nodo 19632:66 «accordion/collapsible_card»): cabecera de 60 px con una\nmarca azul a la izquierda, la flecha, la información del ítem y una X para quitarlo; al abrir, el detalle\naparece debajo separado por una línea.\n\nLa cabecera se proyecta con el atributo `card-info` y el detalle con el contenido sin atributo, así que\nsirve para cualquier ítem de una lista (un documento, un asiento…). `[(expanded)]` controla si está\nabierta; la X emite `closed` y se oculta con `[closable]=\"false\"`. El padre decide qué hacer al cerrar.\n\nPara una cabecera de datos sueltos (etiqueta arriba, valor en negrita abajo) pasar `[fields]` en vez de proyectar\n`card-info`: reparte los campos en columnas y admite un ícono junto al valor.",
     "usaSesion": false,
     "proyectaContenido": true,
     "entradas": [
@@ -2737,6 +2737,13 @@ export const MANIFIESTO_UI_KIT: readonly FichaComponente[] = [
         "porDefecto": null,
         "requerida": false,
         "descripcion": null
+      },
+      {
+        "nombre": "fields",
+        "tipo": "CollapsibleCardField[]",
+        "porDefecto": "[]",
+        "requerida": false,
+        "descripcion": "Campos de la cabecera (alternativa a proyectar `card-info`)."
       }
     ],
     "eventos": [
@@ -2751,7 +2758,7 @@ export const MANIFIESTO_UI_KIT: readonly FichaComponente[] = [
         "descripcion": null
       }
     ],
-    "usar": "- Ítems de una lista que se revisan de a uno: un documento o un asiento con su resumen en la cabecera y todos sus\n  datos al abrir.\n- Cuando además el usuario puede quitar el ítem con la X y el padre decide qué pasa con `closed`.\n- Hoy sin uso en la app; empieza cerrada y `[(expanded)]` sirve para abrir la primera o recordar el estado.",
+    "usar": "- Ítems de una lista que se revisan de a uno: un documento o un asiento con su resumen en la cabecera y todos sus\n  datos al abrir.\n- Cuando además el usuario puede quitar el ítem con la X y el padre decide qué pasa con `closed`.\n- Para los datos del proceso de una solicitud de subasta: tres campos en la cabecera (`[fields]`, el último con\n  ícono de información), sin X (`[closable]=\"false\"`), y el detalle de los lotes al abrir.\n- Empieza cerrada; `[(expanded)]` sirve para abrir la primera o recordar el estado.",
     "evitar": "- Para 2 o más registros comparables en una solicitud: usar la grilla estándar (`siaf-table-controls` + tabla +\n  `siaf-pagination`).\n- Para el único ítem elegido desde un panel lateral, sin detalle que desplegar: usar `siaf-summary-card`.\n- Para secciones con título y menú ⋮, sin X: usar `siaf-expansion-panel`; para preguntas de solo texto,\n  `siaf-accordion`.\n- Con la X visible en modo consulta: ocultarla con `[closable]=\"false\"`.",
     "teclado": "- **Tab**: pasa por la flecha, lo que el padre proyecte en la cabecera y la X.\n- **Enter / Espacio** en la flecha: abren o cierran el detalle y emiten `expandedChange`.\n- **Enter / Espacio** en la X: emiten `closed`; si el padre quita la tarjeta, el foco no se mueve solo.",
     "accesibilidad": "- **4.1.2 Nombre, función y valor (A)**: la flecha es un `button` con `aria-expanded`, `aria-controls` hacia el\n  detalle y nombre «Expandir detalle» / «Contraer detalle»; la X toma su nombre de `closeLabel`, que el padre debe\n  completar con el ítem (por ejemplo «Quitar documento PAA-…») cuando hay varias tarjetas.\n- **1.3.1 Información y relaciones (A)**: el detalle abierto es `role=\"region\"` rotulado por la cabecera\n  (`aria-labelledby`).\n- **1.1.1 Contenido no textual (A)**: la marca azul y los íconos de los botones son decorativos (`aria-hidden`).\n- **1.4.1 Uso del color (A)**: abierta o cerrada se distingue por la flecha y por el detalle visible; la marca azul\n  no indica estado.\n- **2.4.3 Orden del foco (A)**: al quitar la tarjeta, el padre debe llevar el foco al ítem siguiente o a la acción\n  de agregar: el componente no lo mueve.\n- **2.4.7 Foco visible (AA)**: los dos botones muestran un contorno de 2 px `border-states-focus` separado 2 px.\n- **1.4.11 Contraste no textual (AA)**: ese contorno es el azul del kit (`border-states-focus`, 5.35:1 claro /\n  10.15:1 oscuro sobre la superficie).\n- **2.5.8 Tamaño del objetivo (AA)**: flecha y X miden 32 × 32 px.",
@@ -2817,6 +2824,12 @@ export const MANIFIESTO_UI_KIT: readonly FichaComponente[] = [
         ]
       },
       {
+        "token": "--sys-color-text-neutral-low",
+        "via": [
+          "var()"
+        ]
+      },
+      {
         "token": "--sys-color-text-neutral-medium",
         "via": [
           "var()"
@@ -2837,7 +2850,14 @@ export const MANIFIESTO_UI_KIT: readonly FichaComponente[] = [
       {
         "token": "--sys-gap-base-xs",
         "via": [
+          "gap-siaf-xs",
           "py-siaf-xs"
+        ]
+      },
+      {
+        "token": "--sys-gap-base-xxs",
+        "via": [
+          "gap-siaf-xxs"
         ]
       },
       {
@@ -2856,7 +2876,7 @@ export const MANIFIESTO_UI_KIT: readonly FichaComponente[] = [
     "usa": [
       "siaf-icon"
     ],
-    "sinUso": true
+    "sinUso": false
   },
   {
     "selector": "siaf-column-visibility-panel",
@@ -11766,6 +11786,13 @@ export const MANIFIESTO_UI_KIT: readonly FichaComponente[] = [
     "proyectaContenido": true,
     "entradas": [
       {
+        "nombre": "allowReject",
+        "tipo": "boolean",
+        "porDefecto": "true",
+        "requerida": false,
+        "descripcion": "Con false oculta Rechazar aunque la matriz de rol y estado lo muestre."
+      },
+      {
         "nombre": "approveLabel",
         "tipo": "string",
         "porDefecto": "'Aprobar'",
@@ -11988,7 +12015,7 @@ export const MANIFIESTO_UI_KIT: readonly FichaComponente[] = [
         "descripcion": null
       }
     ],
-    "usar": "- Dentro de `siaf-solicitude-page-layout`, que lo pinta con `role` y `state`: así lo usan las request-pages de\n  Contabilidad y los formularios de Admin.\n- Con `customActions` y botones en `[actions]` cuando el proceso tiene acciones fuera de la matriz, como «Reprocesar»\n  en el detalle de contabilización.\n- Con `saveDisabled` para dejar Grabar deshabilitado mientras no hay cambios (patrón «Grabar solo con cambios»).",
+    "usar": "- Dentro de `siaf-solicitude-page-layout`, que lo pinta con `role` y `state`: así lo usan las request-pages de\n  Contabilidad y los formularios de Admin.\n- Con `customActions` y botones en `[actions]` cuando el proceso tiene acciones fuera de la matriz, como «Reprocesar»\n  en el detalle de contabilización.\n- Con `saveDisabled` para dejar Grabar deshabilitado mientras no hay cambios (patrón «Grabar solo con cambios»).\n- Con `[allowReject]=\"false\"` cuando el proceso solo permite aprobar u observar: la matriz de `role` y `state` mostraría\n  Rechazar y este input lo oculta (registro de pago de garantía).",
     "evitar": "- Suelto con su propio breadcrumb y contenedor: usar `siaf-solicitude-page-layout`, que lo fija bajo el navbar y\n  reenvía los eventos (hoy solo la ruta `formulario` de asiento de ajuste lo arma a mano).\n- Para pantallas sin ciclo de documento (consultas, listados): usar `siaf-page-header`.\n- Para acciones de una tarjeta o sección: ponerlas en la tarjeta y apagar la botonera con `showButtonGroup` en false,\n  como el Gestor de Usuarios.\n- Para mostrar el estado del documento en el flujo: usar `siaf-flow-status-tag`; esta etiqueta solo marca «Nuevo» o\n  «Edición».",
     "teclado": "- **Tab**: recorre Regresar (si `showReturn`) y los botones visibles en su orden; en móvil, la barra fija inferior va\n  en el DOM justo después del encabezado. Los deshabilitados no reciben foco.\n- **Enter / Espacio**: activan cada botón y emiten su evento (`returned`, `canceled`, `saved`, `verified`, `edited`,\n  `deleted`, `approved`, `observed` o `rejected`). Los botones siguen `siaf-button`.",
     "accesibilidad": "- **1.3.1 Información y relaciones (A)**: `heading` es el `h1` de la página; la etiqueta y el texto secundario van\n  como texto junto a él.\n- **4.1.2 Nombre, función y valor (A)**: Regresar lleva `aria-label=\"Regresar\"`; en la barra móvil cada botón se\n  nombra con su texto visible (el ícono de la principal es decorativo), y los deshabilitados (Grabar sin cambios,\n  Eliminar en observado) exponen `disabled`.\n- **2.5.8 Tamaño del objetivo (AA)**: los botones de la barra móvil miden 48 px de alto; en escritorio, 40.\n- **2.4.3 Orden del foco (A)**: en escritorio los botones siguen al título; en móvil la barra fija inferior va en el\n  DOM después del encabezado, así que Tab llega a las acciones antes que al formulario.\n- **Pendiente · 2.4.11 Foco no oculto (AA)**: en móvil la barra de acciones es `fixed` abajo y no hay\n  `scroll-padding`: al avanzar con Tab, un campo puede quedar tapado por ella.\n- **1.4.11 Contraste no textual (AA)**: el anillo de foco de Regresar (2 px) es el azul del kit\n  (`border-states-focus`, 5.35:1 claro / 10.15:1 oscuro sobre `bg-surface`). Los demás botones siguen `siaf-button`.\n- **1.4.3 Contraste mínimo (AA)**: `h1` `text-text` (16.29:1 / 16.53:1), texto secundario `text-text-muted` (5.01:1 /\n  8.86:1) y la etiqueta en blanco sobre `bg-brand-accent` (4.89:1 / 5.65:1) o `bg-brand-primary` (8.79:1 / 6.67:1).\n- **Pendiente · 4.1.3 Mensajes de estado (AA)**: con `loading` el título y los botones se cambian por un esqueleto\n  sin `aria-busy` ni `role=\"status\"`: la carga no se anuncia.\n- **Pendiente · 2.1.1 Teclado (A)**: desde `sm` el `h1` se corta y el texto completo sale con `siafTooltip`, que se\n  abre con el mouse o con el foco; como el `h1` no es enfocable, con teclado no se puede ver.",
@@ -12203,6 +12230,13 @@ export const MANIFIESTO_UI_KIT: readonly FichaComponente[] = [
     "usaSesion": false,
     "proyectaContenido": true,
     "entradas": [
+      {
+        "nombre": "allowReject",
+        "tipo": "boolean",
+        "porDefecto": "true",
+        "requerida": false,
+        "descripcion": "Con false oculta Rechazar en la botonera del aprobador."
+      },
       {
         "nombre": "breadcrumbs",
         "tipo": "BreadcrumbItem[]",
@@ -12968,7 +13002,7 @@ export const MANIFIESTO_UI_KIT: readonly FichaComponente[] = [
         "descripcion": null
       }
     ],
-    "usar": "- Para el único ítem elegido desde un panel lateral en una solicitud: plan de cuentas, cuenta contable anterior o\n  entidad del estado (plan de cuentas); ámbito, período, clase y detalle (catálogo de ajustes y asiento de ajuste);\n  evento (eventos contables).\n- `bordered` con indicador y la ✕ solo en edición (`[showClose]=\"!isReadOnly\"`), con un `closeLabel` que nombre el\n  ítem («Quitar plan contable»).\n- Para datos precargados de solo lectura con la misma forma, sin ✕: pliego, unidad ejecutora y período mensual en\n  apertura contable, o la cuenta en uso de una modificación.",
+    "usar": "- Para el único ítem elegido desde un panel lateral en una solicitud: plan de cuentas, cuenta contable anterior o\n  entidad del estado (plan de cuentas); ámbito, período, clase y detalle (catálogo de ajustes y asiento de ajuste);\n  evento (eventos contables).\n- `bordered` con indicador y la ✕ solo en edición (`[showClose]=\"!isReadOnly\"`), con un `closeLabel` que nombre el\n  ítem («Quitar plan contable»).\n- Para datos precargados de solo lectura con la misma forma, sin ✕: pliego, unidad ejecutora y período mensual en\n  apertura contable, o la cuenta en uso de una modificación.\n- Para la orden de pago de una solicitud de subasta: Nro, Estado (campo con `tag`, etiqueta `outline` con ícono) y\n  Cuenta de ingreso (con ícono de información), `bordered`, con indicador y sin ✕.\n- Un campo con `tag` pinta su valor como `siaf-status-tag` pequeño; el estado va escrito, no solo en color.",
     "evitar": "- Para 2 o más ítems: usar la grilla estándar (`siaf-table-controls` + tabla + `siaf-pagination` Bottom); sin\n  ítems, el placeholder gris o `empty-section`.\n- Para el N° y el estado del documento abierto: usar `siaf-document-summary-card`.\n- Para ítems con detalle que se despliega: usar `siaf-collapsible-card`.\n- Para elegir entre tarjetas: usar `siaf-stepper-card`; esta no es seleccionable.",
     "teclado": "- **Tab**: enfoca la ✕ cuando `showClose` está activo; sin ella la tarjeta no recibe foco.\n- **Enter / Espacio** en la ✕: emiten `closed`; el foco no se mueve solo: al quitar el ítem, el padre debe\n  llevarlo, por ejemplo, al botón de búsqueda.",
     "accesibilidad": "- **4.1.2 Nombre, función y valor (A)**: la ✕ es un `button` con nombre desde `closeLabel` (por defecto «Cerrar»);\n  el padre debe nombrar el ítem, como «Quitar entidad del estado».\n- **1.1.1 Contenido no textual (A)**: la barra lateral y el ícono de la ✕ son decorativos (`aria-hidden`); el ícono\n  de un campo solo se anuncia si trae `iconLabel` y, si no, queda decorativo.\n- **1.4.3 Contraste mínimo (AA)**: etiquetas `text-neutral-low` 5.01:1 (oscuro 8.86:1) y valores\n  `text-neutral-medium` 14.53:1 (12.87:1) sobre la superficie.\n- **2.4.7 Foco visible (AA)**: la ✕ muestra un contorno de 2 px `border-states-focus` separado 2 px.\n- **1.4.11 Contraste no textual (AA)**: ese contorno es el azul del kit (`border-states-focus`, 5.35:1 claro /\n  10.15:1 oscuro sobre la superficie).\n- **1.4.13 Contenido en hover o foco (AA)**: desde `sm` los valores truncados se completan con `siafTooltip`, que\n  se cierra con Escape y se puede recorrer con el puntero.\n- **Pendiente · 2.1.1 Teclado (A)**: ese texto no recibe foco, así que con teclado el globo no aparece (el lector de\n  pantalla sí lo lee entero).\n- **2.5.8 Tamaño del objetivo (AA)**: la ✕ mide 40 × 40 px.",
@@ -13060,7 +13094,8 @@ export const MANIFIESTO_UI_KIT: readonly FichaComponente[] = [
     ],
     "usa": [
       "[siafTooltip]",
-      "siaf-icon"
+      "siaf-icon",
+      "siaf-status-tag"
     ],
     "sinUso": false
   },
@@ -13214,7 +13249,7 @@ export const MANIFIESTO_UI_KIT: readonly FichaComponente[] = [
     "usa": [
       "siaf-data-table"
     ],
-    "sinUso": false
+    "sinUso": true
   },
   {
     "selector": "siaf-table-controls",

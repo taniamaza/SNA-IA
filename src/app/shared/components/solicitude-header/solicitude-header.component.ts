@@ -246,6 +246,8 @@ const MOBILE_PRIMARY_ACTION_CLASS =
  * - Con `customActions` y botones en `[actions]` cuando el proceso tiene acciones fuera de la matriz, como «Reprocesar»
  *   en el detalle de contabilización.
  * - Con `saveDisabled` para dejar Grabar deshabilitado mientras no hay cambios (patrón «Grabar solo con cambios»).
+ * - Con `[allowReject]="false"` cuando el proceso solo permite aprobar u observar: la matriz de `role` y `state` mostraría
+ *   Rechazar y este input lo oculta (registro de pago de garantía).
  * @evitar
  * - Suelto con su propio breadcrumb y contenedor: usar `siaf-solicitude-page-layout`, que lo fija bajo el navbar y
  *   reenvía los eventos (hoy solo la ruta `formulario` de asiento de ajuste lo arma a mano).
@@ -427,6 +429,8 @@ export class SolicitudeHeaderComponent {
    */
   @Input() customActions = false;
   @Input() showReturn = false;
+  /** Con false oculta Rechazar aunque la matriz de rol y estado lo muestre. */
+  @Input() allowReject = true;
   @Input() showTag = true;
   @Input() tagLabel = 'Nuevo';
   @Input() tagTone: SolicitudeHeaderTagTone = 'accent';
@@ -512,7 +516,7 @@ export class SolicitudeHeaderComponent {
   }
 
   get resolvedShowReject(): boolean {
-    return this.roleStateConfig?.showReject ?? false;
+    return (this.roleStateConfig?.showReject ?? false) && this.allowReject;
   }
 
   readonly mobileActionClass = MOBILE_ACTION_CLASS;

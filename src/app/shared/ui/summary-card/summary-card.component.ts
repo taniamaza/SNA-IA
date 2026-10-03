@@ -1,13 +1,25 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { IconComponent } from '../icon/icon.component';
+import { StatusTagAppearance, StatusTagComponent, StatusTagTone } from '../status-tag/status-tag.component';
 import { TooltipDirective } from '../tooltip/tooltip.directive';
+
+/** Etiqueta de estado que reemplaza al texto del valor de un campo (el estado va escrito en `label`). */
+export interface SummaryCardFieldTag {
+  label: string;
+  tone?: StatusTagTone;
+  appearance?: StatusTagAppearance;
+  /** Ícono de Material Icons antes del texto (p. ej. `pending`). */
+  icon?: string;
+}
 
 export interface SummaryCardField {
   label: string;
   value: string | number;
   icon?: string;
   iconLabel?: string;
+  /** Si viene, el valor se pinta como `siaf-status-tag` (24 px) en vez de texto en negrita; `value` queda de respaldo. */
+  tag?: SummaryCardFieldTag;
 }
 
 /**
@@ -25,6 +37,9 @@ export interface SummaryCardField {
  *   ítem («Quitar plan contable»).
  * - Para datos precargados de solo lectura con la misma forma, sin ✕: pliego, unidad ejecutora y período mensual en
  *   apertura contable, o la cuenta en uso de una modificación.
+ * - Para la orden de pago de una solicitud de subasta: Nro, Estado (campo con `tag`, etiqueta `outline` con ícono) y
+ *   Cuenta de ingreso (con ícono de información), `bordered`, con indicador y sin ✕.
+ * - Un campo con `tag` pinta su valor como `siaf-status-tag` pequeño; el estado va escrito, no solo en color.
  * @evitar
  * - Para 2 o más ítems: usar la grilla estándar (`siaf-table-controls` + tabla + `siaf-pagination` Bottom); sin
  *   ítems, el placeholder gris o `empty-section`.
@@ -54,7 +69,7 @@ export interface SummaryCardField {
 @Component({
   selector: 'siaf-summary-card',
   standalone: true,
-  imports: [IconComponent, TooltipDirective],
+  imports: [IconComponent, StatusTagComponent, TooltipDirective],
   template: `
     <section
       class="relative flex w-full flex-col gap-siaf-md rounded-siaf-md bg-surface p-siaf-md sm:flex-row sm:items-center"
@@ -76,9 +91,15 @@ export interface SummaryCardField {
 
             <!-- Móvil: el valor envuelve (no hay hover); desde sm vuelve a truncarse. -->
             <div class="flex min-h-6 min-w-0 items-center gap-siaf-xs sm:h-6 sm:overflow-hidden">
-              <span class="break-words text-sm font-bold tracking-[-0.02px] text-[var(--sys-color-text-neutral-medium)] sm:truncate" siafTooltip>
-                {{ field.value }}
-              </span>
+              @if (field.tag; as tag) {
+                <siaf-status-tag size="small" [tone]="tag.tone ?? 'default'" [appearance]="tag.appearance ?? 'outline'" [icon]="tag.icon ?? ''">
+                  {{ tag.label }}
+                </siaf-status-tag>
+              } @else {
+                <span class="break-words text-sm font-bold tracking-[-0.02px] text-[var(--sys-color-text-neutral-medium)] sm:truncate" siafTooltip>
+                  {{ field.value }}
+                </span>
+              }
 
               @if (field.icon) {
                 <siaf-icon

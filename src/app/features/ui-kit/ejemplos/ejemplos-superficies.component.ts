@@ -5,7 +5,7 @@ import { SolicitudeInfoCardComponent, SolicitudeInfoField } from '../../../share
 import { AccordionComponent, AccordionItem } from '../../../shared/ui/accordion/accordion.component';
 import { ButtonComponent } from '../../../shared/ui/button/button.component';
 import { CardComponent } from '../../../shared/ui/card/card.component';
-import { CollapsibleCardComponent } from '../../../shared/ui/collapsible-card/collapsible-card.component';
+import { CollapsibleCardComponent, CollapsibleCardField } from '../../../shared/ui/collapsible-card/collapsible-card.component';
 import { DeskCardComponent, DeskCardTone } from '../../../shared/ui/desk-card/desk-card.component';
 import { DocumentSummaryCardComponent } from '../../../shared/ui/document-summary-card/document-summary-card.component';
 import { ExpansionPanelComponent } from '../../../shared/ui/expansion-panel/expansion-panel.component';
@@ -130,6 +130,7 @@ import { DATOS_RESUMEN_DE_MUESTRA } from './reporte-de-muestra';
           } @empty {
             <siaf-button variant="secondary" size="sm" (click)="reiniciarTarjetas()">Restaurar tarjetas</siaf-button>
           }
+          <siaf-collapsible-card [fields]="camposCabecera" [closable]="false" />
         </div>
         <p class="mt-2 text-xs text-text-muted">La X quita la tarjeta del ejemplo: en la app, el padre decide qué hacer con «closed».</p>
       }
@@ -177,10 +178,17 @@ export class EjemplosSuperficiesComponent {
 
   readonly datosResumenReporte = DATOS_RESUMEN_DE_MUESTRA;
 
+  readonly camposCabecera: CollapsibleCardField[] = [
+    { label: 'Código del proceso', value: 'SPE-001-2026-MTC' },
+    { label: 'Etapa', value: 'Convocatoria y habilitación de postores' },
+    { label: 'Lotes en los cuales postula', value: 2, icon: 'info', iconLabel: 'Detalle de los lotes' },
+  ];
+
   readonly resumen: SummaryCardField[] = [
     { label: 'Código', value: '1101.01' },
     { label: 'Denominación', value: 'Caja M/N' },
     { label: 'Nivel', value: 5 },
+    { label: 'Estado', value: 'Pendiente', tag: { label: 'Pendiente', icon: 'pending' } },
   ];
 
   readonly camposPaso: StepperCardField[] = [

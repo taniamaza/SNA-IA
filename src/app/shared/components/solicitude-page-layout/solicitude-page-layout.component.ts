@@ -61,6 +61,7 @@ import { SolicitudeHeaderComponent, SolicitudeHeaderRole, SolicitudeHeaderState 
           [heading]="heading"
           [secondaryText]="secondaryText"
           [showReturn]="showReturn"
+          [allowReject]="allowReject"
           [showTag]="showTag"
           [customActions]="customActions"
           [showButtonGroup]="showButtonGroup"
@@ -95,6 +96,8 @@ export class SolicitudePageLayoutComponent {
   @Input() heading = '';
   @Input() secondaryText = '';
   @Input() showReturn = true;
+  /** Con false oculta Rechazar en la botonera del aprobador. */
+  @Input() allowReject = true;
   @Input() showTag = true;
   /** Reemplaza los botones estándar del header por el slot proyectado `[actions]`. */
   @Input() customActions = false;

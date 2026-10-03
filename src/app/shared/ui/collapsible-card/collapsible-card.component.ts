@@ -4,6 +4,14 @@ import { IconComponent } from '../icon/icon.component';
 
 let siguienteId = 0;
 
+/** Campo etiqueta/valor de la cabecera: el valor va en negrita y puede llevar un ícono (p. ej. `info`) a su derecha. */
+export interface CollapsibleCardField {
+  label: string;
+  value: string | number;
+  icon?: string;
+  iconLabel?: string;
+}
+
 /**
  * Tarjeta colapsable (Figma UI KIT, nodo 19632:66 «accordion/collapsible_card»): cabecera de 60 px con una
  * marca azul a la izquierda, la flecha, la información del ítem y una X para quitarlo; al abrir, el detalle
@@ -13,11 +21,16 @@ let siguienteId = 0;
  * sirve para cualquier ítem de una lista (un documento, un asiento…). `[(expanded)]` controla si está
  * abierta; la X emite `closed` y se oculta con `[closable]="false"`. El padre decide qué hacer al cerrar.
  *
+ * Para una cabecera de datos sueltos (etiqueta arriba, valor en negrita abajo) pasar `[fields]` en vez de proyectar
+ * `card-info`: reparte los campos en columnas y admite un ícono junto al valor.
+ *
  * @usar
  * - Ítems de una lista que se revisan de a uno: un documento o un asiento con su resumen en la cabecera y todos sus
  *   datos al abrir.
  * - Cuando además el usuario puede quitar el ítem con la X y el padre decide qué pasa con `closed`.
- * - Hoy sin uso en la app; empieza cerrada y `[(expanded)]` sirve para abrir la primera o recordar el estado.
+ * - Para los datos del proceso de una solicitud de subasta: tres campos en la cabecera (`[fields]`, el último con
+ *   ícono de información), sin X (`[closable]="false"`), y el detalle de los lotes al abrir.
+ * - Empieza cerrada; `[(expanded)]` sirve para abrir la primera o recordar el estado.
  * @evitar
  * - Para 2 o más registros comparables en una solicitud: usar la grilla estándar (`siaf-table-controls` + tabla +
  *   `siaf-pagination`).
@@ -64,6 +77,27 @@ let siguienteId = 0;
           <siaf-icon [name]="abierto() ? 'expand_less' : 'expand_more'" [size]="20" />
         </button>
         <div class="min-w-0 flex-1" [id]="idCabecera">
+          @if (fields.length > 0) {
+            <div class="flex flex-wrap items-center gap-siaf-md">
+              @for (field of fields; track field.label) {
+                <div class="flex min-w-[160px] flex-1 flex-col gap-siaf-xxs">
+                  <span class="min-h-4 truncate text-[11px] font-medium uppercase tracking-[0.66px] text-[var(--sys-color-text-neutral-low)]">{{ field.label }}</span>
+                  <div class="flex h-6 min-w-0 items-center gap-siaf-xs overflow-hidden">
+                    <span class="truncate text-sm font-bold tracking-[-0.02px] text-[var(--sys-color-text-neutral-medium)]">{{ field.value }}</span>
+                    @if (field.icon) {
+                      <siaf-icon
+                        class="shrink-0 text-[var(--sys-color-text-neutral-low)]"
+                        [name]="field.icon"
+                        [size]="24"
+                        [label]="field.iconLabel || field.icon"
+                        [decorative]="!field.iconLabel"
+                      />
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
           <ng-content select="[card-info]" />
         </div>
         @if (closable) {
@@ -91,6 +125,8 @@ export class CollapsibleCardComponent {
   /** Muestra la X que emite `closed`. */
   @Input() closable = true;
   @Input() closeLabel = 'Quitar';
+  /** Campos de la cabecera (alternativa a proyectar `card-info`). */
+  @Input() fields: CollapsibleCardField[] = [];
 
   @Input() set expanded(valor: boolean) {
     this.abierto.set(!!valor);
