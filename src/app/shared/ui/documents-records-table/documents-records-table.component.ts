@@ -1,11 +1,12 @@
 import { NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { NotificationsStateService } from '../../../core/realtime/notifications-state.service';
-import type { DocumentsRecordsColumn, DocumentsRecordsRow, DocumentsRecordsTab } from '../../types/documents-records.types';
+import type { DocumentsRecordsColumn, DocumentsRecordsRow, DocumentsRecordsRowAction, DocumentsRecordsTab } from '../../types/documents-records.types';
 import { FlowStatus, FlowStatusTagComponent } from '../flow-status-tag/flow-status-tag.component';
 import { IconComponent } from '../icon/icon.component';
+import { IconDropdownMenuComponent, IconDropdownMenuItem } from '../icon-dropdown-menu/icon-dropdown-menu.component';
 import { RecordStatus, RecordStatusTagComponent } from '../record-status-tag/record-status-tag.component';
 import { TooltipDirective } from '../tooltip/tooltip.directive';
 
@@ -16,7 +17,9 @@ export type DocumentsRecordsSelectionChange = {
 
 /**
  * Tabla de las pestañas Documentos / Registros: columnas configurables, celdas por tipo
- * (enlace al documento, tag de flujo, tag de registro), checkbox de selección y botón de historial.
+ * (enlace al documento, tag de flujo, tag de registro, check/equis), checkbox de selección y botón de historial.
+ * Con `rowActions`, la fila de Registros trae en su lugar las acciones de la configuración: la primaria como ícono
+ * (ver detalle) y las demás en el menú ⋮ (reasignar, anular); la elegida sale por `rowAction`.
  *
  * Es la tabla interna de `siaf-documents-records-page`; para una grilla nueva compón la grilla
  * estándar (`siaf-table-controls` arriba + `siaf-pagination Bottom` abajo) alrededor de ella.
@@ -63,7 +66,7 @@ export type DocumentsRecordsSelectionChange = {
 @Component({
   selector: 'siaf-documents-records-table',
   standalone: true,
-  imports: [FlowStatusTagComponent, IconComponent, NgClass, RecordStatusTagComponent, RouterLink, TooltipDirective],
+  imports: [FlowStatusTagComponent, IconComponent, IconDropdownMenuComponent, NgClass, RecordStatusTagComponent, RouterLink, TooltipDirective],
   template: `
     <div class="siaf-table-scroll min-w-0">
       <table class="w-full border-collapse text-left text-sm" [ngClass]="minWidthClass">
@@ -106,15 +109,31 @@ export type DocumentsRecordsSelectionChange = {
                     <siaf-flow-status-tag [status]="flowStatus(row[column.key])" size="small" />
                   } @else if (column.kind === 'record-status') {
                     <siaf-record-status-tag [status]="recordStatus(row[column.key])" [size]="activeTab === 'records' ? 'small' : 'standard'" />
+                  } @else if (column.kind === 'boolean-icon') {
+                    <siaf-icon [name]="row[column.key] === 'Sí' ? 'check' : 'close'" [size]="20" />
+                    <span class="sr-only">{{ row[column.key] === 'Sí' ? 'Sí' : 'No' }}</span>
                   } @else {
                     <span class="block truncate" siafTooltip>{{ row[column.key] }}</span>
                   }
                 </td>
               }
               <td class="sticky right-0 border-l border-[var(--sys-color-divider-strong)] bg-surface px-siaf-sm py-siaf-xs">
+                @if (activeTab === 'records' && rowActions.length) {
+                  <span class="inline-flex items-center gap-siaf-xxs">
+                    @if (accionPrincipal(); as principal) {
+                      <button class="inline-flex size-8 items-center justify-center rounded-siaf-md transition hover:bg-surface-muted active:bg-[var(--sys-color-bg-states-dark-pressed)]" type="button" [attr.aria-label]="principal.label" [title]="principal.label" (click)="rowAction.emit({ action: principal.value, row })">
+                        <siaf-icon [name]="principal.icon ?? 'visibility'" [size]="20" />
+                      </button>
+                    }
+                    @if (itemsMenu().length) {
+                      <siaf-icon-dropdown-menu icon="more_vert" ariaLabel="Más acciones del registro" [items]="itemsMenu()" (selected)="rowAction.emit({ action: $event, row })" />
+                    }
+                  </span>
+                } @else {
                 <button class="inline-flex size-8 items-center justify-center rounded-siaf-md transition hover:bg-surface-muted active:bg-[var(--sys-color-bg-states-dark-pressed)]" type="button" [attr.aria-label]="activeTab === 'records' ? 'Ver historial del registro' : 'Historial de documento'" [title]="activeTab === 'records' ? 'Ver historial del registro' : 'Historial de documento'" (click)="historyOpened.emit(row)">
                   <siaf-icon name="history" [size]="20" />
                 </button>
+                }
               </td>
             </tr>
           }
@@ -137,6 +156,19 @@ export class DocumentsRecordsTableComponent {
 
   @Output() selectionChanged = new EventEmitter<DocumentsRecordsSelectionChange>();
   @Output() historyOpened = new EventEmitter<DocumentsRecordsRow>();
+  /** Acción elegida en una fila de Registros (solo con `rowActions`). */
+  @Output() rowAction = new EventEmitter<{ action: string; row: DocumentsRecordsRow }>();
+
+  private readonly acciones = signal<DocumentsRecordsRowAction[]>([]);
+  /** Acciones de la fila en Registros: la primaria va como ícono y el resto en el menú ⋮. */
+  @Input() set rowActions(value: DocumentsRecordsRowAction[]) {
+    this.acciones.set(value ?? []);
+  }
+  get rowActions(): DocumentsRecordsRowAction[] {
+    return this.acciones();
+  }
+  readonly accionPrincipal = computed(() => this.acciones().find((a) => a.primary) ?? null);
+  readonly itemsMenu = computed((): IconDropdownMenuItem[] => this.acciones().filter((a) => !a.primary).map((a) => ({ label: a.label, value: a.value, icon: a.icon })));
 
   rowTrackValue(row: DocumentsRecordsRow, index: number): string | number {
     const key = this.activeTab === 'documents' ? 'number' : this.recordTrackKey;
@@ -171,6 +203,7 @@ export class DocumentsRecordsTableComponent {
     const statuses: FlowStatus[] = [
       'Elaborado',
       'Registrado',
+      'Finalizado',
       'Verificado',
       'Validado',
       'Revisado',

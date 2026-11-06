@@ -353,7 +353,9 @@ type DocumentsRecordsRoleMode = 'creator' | 'approver' | 'readOnly';
                   [documentRoute]="documentRoute"
                   [selectionDisabled]="selectionDisabled"
                   (selectionChanged)="toggleRowSelection($event)"
+                  [rowActions]="activeTab === 'records' ? (effectiveConfig.recordRowActions ?? []) : []"
                   (historyOpened)="openHistory($event)"
+                  (rowAction)="recordAction.emit($event)"
                 />
               }
 
@@ -425,6 +427,8 @@ export class DocumentsRecordsPageComponent implements OnChanges {
   @Output() documentsQueryChange = new EventEmitter<DocumentsQuery>();
   /** Igual que `documentsQueryChange`, para la pestaña Registros (`serverRecordsQuery`). */
   @Output() recordsQueryChange = new EventEmitter<DocumentsQuery>();
+  /** Acción elegida en una fila de Registros (`recordRowActions` de la config). */
+  @Output() recordAction = new EventEmitter<{ action: string; row: DocumentsRecordsRow }>();
   @Input() loading = false;
 
   // Config efectivo con reglas de rol aplicadas automáticamente

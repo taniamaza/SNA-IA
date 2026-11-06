@@ -4,7 +4,7 @@ import { DocumentsRecordsPageComponent } from '../../../../../shared/components/
 import type { DocumentsRecordsConfig, DocumentsRecordsRow } from '../../../../../shared/types/documents-records.types';
 import { EXTRACCION_BIENES_DOCUMENTS_CONFIG } from '../../config/extraccion-bienes-documents.config';
 import { REQUEST_ROUTE } from '../../config/extraccion-bienes.rutas';
-import { NOMBRE_DOCUMENTO } from '../../models/extraccion.model';
+import { NOMBRE_DOCUMENTO, REGISTROS_MUESTRA } from '../../models/extraccion.model';
 import { ExtraccionStore } from '../../services/extraccion.store';
 
 /**
@@ -33,6 +33,18 @@ export class ExtraccionBienesDocumentsComponent {
       entity: s.entidad,
       linkRoute: `${REQUEST_ROUTE}/${s.id}`,
     }));
-    return { ...EXTRACCION_BIENES_DOCUMENTS_CONFIG, documentRows };
+    const recordRows: DocumentsRecordsRow[] = REGISTROS_MUESTRA.map((r) => ({
+      recordId: r.numero,
+      number: r.numero,
+      tipo: r.tipo,
+      cartonizacion: r.cartonizacion,
+      pedidos: String(r.pedidos),
+      bienes: String(r.bienes),
+      operarios: String(r.operarios),
+      avance: `${r.avance}%`,
+      fecha: r.fecha,
+      status: r.estado,
+    }));
+    return { ...EXTRACCION_BIENES_DOCUMENTS_CONFIG, documentRows, recordRows };
   });
 }

@@ -5013,6 +5013,11 @@ export const MANIFIESTO_UI_KIT: readonly FichaComponente[] = [
         "descripcion": "Consulta remota de la pestaña Documentos (solo si la config declara `serverQuery`): se emite al confirmar la búsqueda (Enter/lupa), al cambiar de página y al cambiar el tamaño de página. El padre la resuelve contra el backend y devuelve `documentRows` ya filtrados y paginados."
       },
       {
+        "nombre": "recordAction",
+        "tipo": "{ action: string; row: DocumentsRecordsRow; }",
+        "descripcion": "Acción elegida en una fila de Registros (`recordRowActions` de la config)."
+      },
+      {
         "nombre": "recordsQueryChange",
         "tipo": "DocumentsQuery",
         "descripcion": "Igual que `documentsQueryChange`, para la pestaña Registros (`serverRecordsQuery`)."
@@ -5185,7 +5190,7 @@ export const MANIFIESTO_UI_KIT: readonly FichaComponente[] = [
     "capa": "ui",
     "importacion": "@siaf/ui/documents-records-table/documents-records-table.component",
     "archivo": "src/app/shared/ui/documents-records-table/documents-records-table.component.ts",
-    "descripcion": "Tabla de las pestañas Documentos / Registros: columnas configurables, celdas por tipo\n(enlace al documento, tag de flujo, tag de registro), checkbox de selección y botón de historial.\n\nEs la tabla interna de `siaf-documents-records-page`; para una grilla nueva compón la grilla\nestándar (`siaf-table-controls` arriba + `siaf-pagination Bottom` abajo) alrededor de ella.",
+    "descripcion": "Tabla de las pestañas Documentos / Registros: columnas configurables, celdas por tipo\n(enlace al documento, tag de flujo, tag de registro, check/equis), checkbox de selección y botón de historial.\nCon `rowActions`, la fila de Registros trae en su lugar las acciones de la configuración: la primaria como ícono\n(ver detalle) y las demás en el menú ⋮ (reasignar, anular); la elegida sale por `rowAction`.\n\nEs la tabla interna de `siaf-documents-records-page`; para una grilla nueva compón la grilla\nestándar (`siaf-table-controls` arriba + `siaf-pagination Bottom` abajo) alrededor de ella.",
     "usaSesion": false,
     "proyectaContenido": false,
     "entradas": [
@@ -5225,6 +5230,13 @@ export const MANIFIESTO_UI_KIT: readonly FichaComponente[] = [
         "descripcion": null
       },
       {
+        "nombre": "rowActions",
+        "tipo": "DocumentsRecordsRowAction[]",
+        "porDefecto": null,
+        "requerida": false,
+        "descripcion": "Acciones de la fila en Registros: la primaria va como ícono y el resto en el menú ⋮."
+      },
+      {
         "nombre": "rows",
         "tipo": "DocumentsRecordsRow[]",
         "porDefecto": "[]",
@@ -5244,6 +5256,11 @@ export const MANIFIESTO_UI_KIT: readonly FichaComponente[] = [
         "nombre": "historyOpened",
         "tipo": "DocumentsRecordsRow",
         "descripcion": null
+      },
+      {
+        "nombre": "rowAction",
+        "tipo": "{ action: string; row: DocumentsRecordsRow; }",
+        "descripcion": "Acción elegida en una fila de Registros (solo con `rowActions`)."
       },
       {
         "nombre": "selectionChanged",
@@ -5334,6 +5351,12 @@ export const MANIFIESTO_UI_KIT: readonly FichaComponente[] = [
         ]
       },
       {
+        "token": "--sys-gap-base-xxs",
+        "via": [
+          "gap-siaf-xxs"
+        ]
+      },
+      {
         "token": "--sys-radius-md",
         "via": [
           "rounded-siaf-md"
@@ -5351,6 +5374,7 @@ export const MANIFIESTO_UI_KIT: readonly FichaComponente[] = [
       "[siafTooltip]",
       "siaf-flow-status-tag",
       "siaf-icon",
+      "siaf-icon-dropdown-menu",
       "siaf-record-status-tag"
     ],
     "sinUso": false
@@ -5824,7 +5848,7 @@ export const MANIFIESTO_UI_KIT: readonly FichaComponente[] = [
     "capa": "ui",
     "importacion": "@siaf/ui/flow-status-tag/flow-status-tag.component",
     "archivo": "src/app/shared/ui/flow-status-tag/flow-status-tag.component.ts",
-    "descripcion": "Etiqueta del estado de flujo de un documento (Elaborado, Verificado, Observado, Anulado…), con el estilo `solid` de\n`siaf-status-tag`: fondo oscuro del tono y texto blanco. El tono de cada estado es el del Figma «flow tags»: gris para\nElaborado y Registrado; azul para Verificado, Validado, Revisado, Generado y En proceso; verde para Autorizado,\nFirmado, Aprobado, Aceptado, Publicado y Procesado; amarillo para Observado, Pendiente y Fallido; y rojo para\nEliminado, Rechazado y Anulado.\n\nJunto con `siaf-record-status-tag` son las etiquetas de estado del proyecto: el mapa de estado a tono vive aquí.",
+    "descripcion": "Etiqueta del estado de flujo de un documento (Elaborado, Verificado, Observado, Anulado…), con el estilo `solid` de\n`siaf-status-tag`: fondo oscuro del tono y texto blanco. El tono de cada estado es el del Figma «flow tags»: gris para\nElaborado, Registrado y Finalizado; azul para Verificado, Validado, Revisado, Generado y En proceso; verde para Autorizado,\nFirmado, Aprobado, Aceptado, Publicado y Procesado; amarillo para Observado, Pendiente y Fallido; y rojo para\nEliminado, Rechazado y Anulado.\n\nJunto con `siaf-record-status-tag` son las etiquetas de estado del proyecto: el mapa de estado a tono vive aquí.",
     "usaSesion": false,
     "proyectaContenido": false,
     "entradas": [

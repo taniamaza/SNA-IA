@@ -88,3 +88,49 @@ describe('DocumentsRecordsTableComponent — tooltip de textos truncados', () =>
     expect(tooltipVisible()).toBeNull();
   }));
 });
+
+describe('DocumentsRecordsTableComponent — acciones de la fila de Registros', () => {
+  let fixture: ComponentFixture<DocumentsRecordsTableComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [DocumentsRecordsTableComponent],
+      providers: [provideRouter([]), provideHttpClient()]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(DocumentsRecordsTableComponent);
+    fixture.componentRef.setInput('activeTab', 'records');
+    fixture.componentRef.setInput('recordTrackKey', 'number');
+    fixture.componentRef.setInput('columns', [
+      { key: 'number', label: 'N°', visibility: 'visible', group: 'default' },
+      { key: 'carton', label: 'Cartonización', visibility: 'visible', group: 'default', kind: 'boolean-icon' }
+    ] as DocumentsRecordsColumn[]);
+    fixture.componentRef.setInput('rows', [{ number: 'A-1', carton: 'Sí' }] as DocumentsRecordsRow[]);
+    fixture.componentRef.setInput('rowActions', [
+      { value: 'detalle', label: 'Ver detalle', icon: 'visibility', primary: true },
+      { value: 'anular', label: 'Anular', icon: 'block' }
+    ]);
+    fixture.detectChanges();
+  });
+
+  it('con rowActions reemplaza el historial por la acción primaria y el menú ⋮', () => {
+    const el: HTMLElement = fixture.nativeElement;
+
+    expect(el.querySelector('[aria-label="Ver detalle"]')).not.toBeNull();
+    expect(el.querySelector('[aria-label="Más acciones del registro"]')).not.toBeNull();
+    expect(el.querySelector('[aria-label="Ver historial del registro"]')).toBeNull();
+  });
+
+  it('emite rowAction con la acción y la fila al pulsar la primaria', () => {
+    const emitidas: { action: string }[] = [];
+    fixture.componentInstance.rowAction.subscribe((e) => emitidas.push(e));
+
+    fixture.nativeElement.querySelector('[aria-label="Ver detalle"]').click();
+
+    expect(emitidas.map((e) => e.action)).toEqual(['detalle']);
+  });
+
+  it('pinta un check con «Sí» en la columna boolean-icon', () => {
+    expect(fixture.nativeElement.textContent).toContain('check');
+  });
+});

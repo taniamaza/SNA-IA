@@ -226,11 +226,7 @@ const PAGINACION_INICIAL: Paginacion = { pagina: 1, filas: 10 };
         <siaf-solicitude-form-card title="Pedidos a extraer">
           @if (!soloLectura()) {
             <span card-actions>
-              @if (pedidos().length === 0) {
-                <siaf-button variant="accent" size="md" icon="search" [iconOnly]="true" ariaLabel="Seleccionar pedidos" (click)="abrirPanelPedidos()" />
-              } @else {
-                <siaf-button variant="filled" size="md" icon="add" [iconOnly]="true" ariaLabel="Agregar pedidos" (click)="abrirPanelPedidos()" />
-              }
+              <siaf-button variant="filled" size="md" icon="search" [iconOnly]="true" ariaLabel="Seleccionar pedidos" (click)="abrirPanelPedidos()" />
             </span>
           }
 
@@ -463,7 +459,7 @@ const PAGINACION_INICIAL: Paginacion = { pagina: 1, filas: 10 };
         mode="multiple"
         idKey="codigo"
         [open]="panelPedidos()"
-        [rows]="pedidosFiltrados()"
+        [rows]="paginaPanel()"
         [columns]="columnasPedidos"
         [searchValue]="busquedaPedidos()"
         [selectedIds]="seleccionPanel()"
@@ -473,7 +469,13 @@ const PAGINACION_INICIAL: Paginacion = { pagina: 1, filas: 10 };
         [paginated]="true"
         [showTopPagination]="true"
         [totalItems]="pedidosFiltrados().length"
-        (searchChange)="busquedaPedidos.set($event)"
+        [page]="pagPanel().pagina"
+        [pageSize]="pagPanel().filas"
+        [rowsPerPage]="pagPanel().filas"
+        (previousPage)="irA(pagPanel, -1, pedidosFiltrados().length)"
+        (nextPage)="irA(pagPanel, 1, pedidosFiltrados().length)"
+        (rowsPerPageChange)="cambiarFilas(pagPanel, $event)"
+        (searchChange)="buscarPedidos($event)"
         (selectionChange)="seleccionPanel.set($event)"
         (selectAllChange)="seleccionarTodosPanel($event)"
         (accepted)="aceptarPedidos($event)"
@@ -572,6 +574,8 @@ export class SolicitudExtraccionComponent {
     })) as unknown as Record<string, unknown>[];
   });
 
+  readonly pagPanel = signal<Paginacion>({ ...PAGINACION_INICIAL });
+  readonly paginaPanel = computed(() => this.cortar(this.pedidosFiltrados(), this.pagPanel()));
   readonly paginaPedidos = computed(() => this.cortar(this.pedidos(), this.pagPedidos()));
   readonly paginaOperarios = computed(() => this.cortar(this.operarios, this.pagOperarios()));
   readonly todosMarcados = computed(() => this.pedidos().length > 0 && this.marcados().length === this.pedidos().length);
@@ -729,7 +733,13 @@ export class SolicitudExtraccionComponent {
   abrirPanelPedidos(): void {
     this.seleccionPanel.set(this.pedidos().map((p) => p.codigo));
     this.busquedaPedidos.set('');
+    this.pagPanel.set({ ...PAGINACION_INICIAL });
     this.panelPedidos.set(true);
+  }
+
+  buscarPedidos(texto: string): void {
+    this.busquedaPedidos.set(texto);
+    this.pagPanel.update((p) => ({ ...p, pagina: 1 }));
   }
 
   /** El checkbox masivo del panel marca (o desmarca) todas las filas que muestra, respetando la búsqueda. */

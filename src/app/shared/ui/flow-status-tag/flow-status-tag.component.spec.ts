@@ -6,6 +6,7 @@ import { FlowStatus, FlowStatusTagComponent } from './flow-status-tag.component'
 const TONO_FIGMA: Record<FlowStatus, string> = {
   Elaborado: 'default',
   Registrado: 'default',
+  Finalizado: 'default',
   Verificado: 'info',
   Validado: 'info',
   Revisado: 'info',

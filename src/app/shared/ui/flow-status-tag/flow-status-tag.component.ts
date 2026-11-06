@@ -5,6 +5,7 @@ import { StatusTagComponent, StatusTagTone } from '../status-tag/status-tag.comp
 export type FlowStatus =
   | 'Elaborado'
   | 'Registrado'
+  | 'Finalizado'
   | 'Verificado'
   | 'Validado'
   | 'Revisado'
@@ -28,7 +29,7 @@ export type FlowStatusTagSize = 'standard' | 'small';
 /**
  * Etiqueta del estado de flujo de un documento (Elaborado, Verificado, Observado, Anulado…), con el estilo `solid` de
  * `siaf-status-tag`: fondo oscuro del tono y texto blanco. El tono de cada estado es el del Figma «flow tags»: gris para
- * Elaborado y Registrado; azul para Verificado, Validado, Revisado, Generado y En proceso; verde para Autorizado,
+ * Elaborado, Registrado y Finalizado; azul para Verificado, Validado, Revisado, Generado y En proceso; verde para Autorizado,
  * Firmado, Aprobado, Aceptado, Publicado y Procesado; amarillo para Observado, Pendiente y Fallido; y rojo para
  * Eliminado, Rechazado y Anulado.
  *
@@ -76,6 +77,7 @@ export class FlowStatusTagComponent {
   private static readonly TONO: Record<FlowStatus, StatusTagTone> = {
     Elaborado: 'default',
     Registrado: 'default',
+    Finalizado: 'default',
     Verificado: 'info',
     Validado: 'info',
     Revisado: 'info',

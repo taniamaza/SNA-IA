@@ -36,7 +36,18 @@ export type DocumentsRecordsColumn = {
   group: ColumnGroup;
   widthClass?: string;
   align?: 'left' | 'right' | 'center';
-  kind?: 'text' | 'document-link' | 'flow-status' | 'record-status';
+  /** `boolean-icon` pinta un check (valor `'Sí'`) o una equis (cualquier otro valor) en lugar del texto. */
+  kind?: 'text' | 'document-link' | 'flow-status' | 'record-status' | 'boolean-icon';
+};
+
+/**
+ * Acción de la fila de la pestaña Registros. La de `primary: true` va como botón de ícono; las demás, en el menú ⋮.
+ */
+export type DocumentsRecordsRowAction = {
+  value: string;
+  label: string;
+  icon?: string;
+  primary?: boolean;
 };
 
 export type DocumentsRecordsFilterOption = {
@@ -86,6 +97,11 @@ export type DocumentsRecordsConfig = {
   recordTableMinWidthClass: string;
   recordTrackKey: string;
   recordHistoryDocumentLabel: string;
+  /**
+   * Acciones de cada fila de Registros (ver detalle, reasignar, anular…). Sin ellas la fila trae solo el botón de
+   * historial; con ellas se reemplaza y la página emite `(recordAction)`.
+   */
+  recordRowActions?: DocumentsRecordsRowAction[];
   /** Variante del panel "Historial del registro" de la pestaña Registros:
    *  'cuenta' (default, plan de cuentas) o 'asiento' (asiento de ajuste). */
   recordHistoryKind?: 'cuenta' | 'asiento' | 'documento';

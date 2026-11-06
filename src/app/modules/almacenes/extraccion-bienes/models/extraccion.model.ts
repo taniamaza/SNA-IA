@@ -40,11 +40,38 @@ export interface SolicitudExtraccion {
   operarios: string[];
 }
 
+const TIPOS_PEDIDO = [
+  { tipo: 'Regular', sigla: 'R', origen: 'PAA' },
+  { tipo: 'Devolución', sigla: 'D', origen: 'PAA' },
+  { tipo: 'Rechazo', sigla: 'R', origen: 'OS' },
+  { tipo: 'Regular', sigla: 'R', origen: 'OC' },
+];
+const PRIORIDADES_PEDIDO = ['Urgente', 'Alta', 'Media', 'Baja'];
+
+/** Pedidos de muestra determinísticos, para probar la búsqueda y la paginación del panel «Seleccionar pedidos». */
+function generarPedidosMuestra(cantidad: number): PedidoExtraccion[] {
+  return Array.from({ length: cantidad }, (_, i) => {
+    const n = i + 4;
+    const t = TIPOS_PEDIDO[i % TIPOS_PEDIDO.length];
+    return {
+      codigo: `2026-${t.origen}-${t.sigla}-${String(n).padStart(3, '0')}`,
+      tipo: t.tipo,
+      prioridad: PRIORIDADES_PEDIDO[(i * 3) % PRIORIDADES_PEDIDO.length],
+      destinos: (i % 3) + 1,
+      bienes: (i % 7) + 1,
+      volumen: Math.round((0.1 + ((i * 37) % 90) / 100) * 100) / 100,
+      peso: 5 + ((i * 11) % 60),
+      fecha: `${String(1 + (i % 28)).padStart(2, '0')}/05/2026`,
+    };
+  });
+}
+
 export const PEDIDOS_MUESTRA: PedidoExtraccion[] = [
   { codigo: '2026-PAA-R-003', tipo: 'Regular', prioridad: 'Urgente', destinos: 2, bienes: 3, volumen: 0.68, peso: 30, fecha: '13/05/2026' },
   { codigo: '2026-PAA-R-002', tipo: 'Regular', prioridad: 'Alta', destinos: 1, bienes: 2, volumen: 0.42, peso: 18, fecha: '13/05/2026' },
   { codigo: '2026-PAA-D-002', tipo: 'Devolución', prioridad: 'Media', destinos: 1, bienes: 2, volumen: 0.3, peso: 12, fecha: '13/05/2026' },
   { codigo: '2026-OS-R-002', tipo: 'Rechazo', prioridad: 'Baja', destinos: 1, bienes: 1, volumen: 0.1, peso: 5, fecha: '13/05/2026' },
+  ...generarPedidosMuestra(96),
 ];
 
 export const OPERARIOS_MUESTRA: OperarioExtraccion[] = [
@@ -113,4 +140,28 @@ export const SOLICITUDES_MUESTRA: SolicitudExtraccion[] = [
     cartonizacion: 'si',
     operarios: ['OP-001'],
   },
+];
+
+export type EstadoRegistroExtraccion = 'Registrado' | 'En proceso' | 'Finalizado';
+
+/** Registro de una extracción ya generada: lo que lista la pestaña «Registros». */
+export interface RegistroExtraccion {
+  numero: string;
+  tipo: 'Regular' | 'Devolución';
+  cartonizacion: 'Sí' | 'No';
+  pedidos: number;
+  bienes: number;
+  operarios: number;
+  avance: number;
+  fecha: string;
+  estado: EstadoRegistroExtraccion;
+}
+
+export const REGISTROS_MUESTRA: RegistroExtraccion[] = [
+  { numero: '2026-EXTR-A-001', tipo: 'Regular', cartonizacion: 'No', pedidos: 2, bienes: 3, operarios: 2, avance: 100, fecha: '15/05/2026', estado: 'Finalizado' },
+  { numero: '2026-EXTR-A-002', tipo: 'Regular', cartonizacion: 'Sí', pedidos: 1, bienes: 2, operarios: 1, avance: 0, fecha: '16/05/2026', estado: 'En proceso' },
+  { numero: '2026-EXTR-A-003', tipo: 'Regular', cartonizacion: 'Sí', pedidos: 2, bienes: 3, operarios: 2, avance: 0, fecha: '16/05/2026', estado: 'En proceso' },
+  { numero: '2026-EXTR-A-004', tipo: 'Devolución', cartonizacion: 'No', pedidos: 2, bienes: 3, operarios: 2, avance: 50, fecha: '17/05/2026', estado: 'En proceso' },
+  { numero: '2026-EXTR-A-005', tipo: 'Regular', cartonizacion: 'Sí', pedidos: 2, bienes: 3, operarios: 2, avance: 0, fecha: '18/05/2026', estado: 'En proceso' },
+  { numero: '2026-EXTR-A-006', tipo: 'Regular', cartonizacion: 'Sí', pedidos: 2, bienes: 4, operarios: 2, avance: 0, fecha: '18/05/2026', estado: 'Registrado' },
 ];
