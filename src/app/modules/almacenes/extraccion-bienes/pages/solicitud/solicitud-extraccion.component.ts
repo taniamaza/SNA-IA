@@ -12,6 +12,7 @@ import type { SolicitudeHeaderState } from '../../../../../shared/components/sol
 import { SolicitudePageLayoutComponent } from '../../../../../shared/components/solicitude-page-layout/solicitude-page-layout.component';
 import { buildProcessBreadcrumbs } from '../../../../../shared/utils/breadcrumbs.util';
 import { ActionTrackerComponent, ActionTrackerSummary } from '../../../../../shared/ui/action-tracker/action-tracker.component';
+import { KpiCardComponent } from '../../../../../shared/ui/kpi-card/kpi-card.component';
 import { AlertComponent } from '../../../../../shared/ui/alert/alert.component';
 import { ButtonComponent } from '../../../../../shared/ui/button/button.component';
 import { CheckboxComponent } from '../../../../../shared/ui/checkbox/checkbox.component';
@@ -37,6 +38,7 @@ import {
   POLITICAS_INVENTARIO,
   PedidoExtraccion,
   etiquetaLpn,
+  formatoMiles,
   formatoNumero,
 } from '../../models/extraccion.model';
 import { ExtraccionStore } from '../../services/extraccion.store';
@@ -46,6 +48,8 @@ interface Paginacion {
   filas: number;
 }
 
+/** PDF de ejemplo de la lista de extracción: es el mismo para todos los operarios. */
+const LISTA_EXTRACCION_PDF = 'assets/documentos/lista-extraccion-ejemplo.pdf';
 const PAGINACION_INICIAL: Paginacion = { pagina: 1, filas: 10 };
 
 /**
@@ -59,6 +63,7 @@ const PAGINACION_INICIAL: Paginacion = { pagina: 1, filas: 10 };
   standalone: true,
   imports: [
     SolicitudePageLayoutComponent,
+    KpiCardComponent,
     SolicitudeInfoCardComponent,
     SolicitudeFormCardComponent,
     DocumentSummaryCardComponent,
@@ -106,46 +111,9 @@ const PAGINACION_INICIAL: Paginacion = { pagina: 1, filas: 10 };
         }
 
         @if (soloLectura()) {
-          <!-- ── Consulta: resumen, pedidos, listas de extracción, LPN y trazabilidad ── -->
+          <!-- ── Consulta: resumen, listas de extracción, LPN y trazabilidad ── -->
           <siaf-solicitude-form-card title="Resumen de extracción">
             <siaf-summary-card [fields]="camposConsulta()" [maxPerRow]="6" [bordered]="true" [showIndicator]="true" [showClose]="false" />
-          </siaf-solicitude-form-card>
-
-          <siaf-solicitude-form-card title="Pedidos extraídos">
-            <div class="siaf-table-shell">
-              <table class="siaf-table">
-                <thead>
-                  <tr class="siaf-table-head-row">
-                    <th class="siaf-table-th">Código de pedido</th>
-                    <th class="siaf-table-th">Tipo</th>
-                    <th class="siaf-table-th">Prioridad</th>
-                    <th class="siaf-table-th">Destino</th>
-                    <th class="siaf-table-th text-right">Bienes</th>
-                    <th class="siaf-table-th">Volumen</th>
-                    <th class="siaf-table-th">Fecha</th>
-                    <th class="siaf-table-th siaf-table-sticky-cell"><span class="sr-only">Acciones</span></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (p of pedidos(); track p.codigo) {
-                    <tr class="siaf-table-row">
-                      <td class="siaf-table-td">{{ p.codigo }}</td>
-                      <td class="siaf-table-td">{{ p.tipo }}</td>
-                      <td class="siaf-table-td">{{ p.prioridad }}</td>
-                      <td class="siaf-table-td">{{ destino(p) }}</td>
-                      <td class="siaf-table-td text-right">{{ p.bienes }}</td>
-                      <td class="siaf-table-td">{{ numero2(p.volumen) }} m³</td>
-                      <td class="siaf-table-td">{{ p.fecha }}</td>
-                      <td class="siaf-table-td siaf-table-sticky-cell">
-                        <span siafTooltip="Ver detalle del pedido">
-                          <siaf-button variant="text" size="sm" icon="visibility" [iconOnly]="true" [ariaLabel]="'Ver el pedido ' + p.codigo" (click)="detallePedido.set(p)" />
-                        </span>
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
           </siaf-solicitude-form-card>
 
           <siaf-solicitude-form-card title="Listas de extracción por operario">
@@ -159,7 +127,7 @@ const PAGINACION_INICIAL: Paginacion = { pagina: 1, filas: 10 };
                     <th class="siaf-table-th">Código</th>
                     <th class="siaf-table-th">Operario</th>
                     <th class="siaf-table-th">Lista de extracción (LE)</th>
-                    <th class="siaf-table-th">Pedidos / bienes asignados</th>
+                    <th class="siaf-table-th text-right">Bienes asignados</th>
                     <th class="siaf-table-th">Observación</th>
                     <th class="siaf-table-th siaf-table-sticky-cell"><span class="sr-only">Acciones</span></th>
                   </tr>
@@ -170,7 +138,7 @@ const PAGINACION_INICIAL: Paginacion = { pagina: 1, filas: 10 };
                       <td class="siaf-table-td">{{ l.operario.codigo }}</td>
                       <td class="siaf-table-td">{{ l.operario.nombre }}</td>
                       <td class="siaf-table-td font-bold">{{ l.le }}</td>
-                      <td class="siaf-table-td">{{ asignacionPrevista(l.operario.codigo) }}</td>
+                      <td class="siaf-table-td text-right">{{ bienesAsignados(l.operario.codigo) }}</td>
                       <td class="siaf-table-td">—</td>
                       <td class="siaf-table-td siaf-table-sticky-cell">
                         <span siafTooltip="Descargar lista de extracción">
@@ -235,6 +203,14 @@ const PAGINACION_INICIAL: Paginacion = { pagina: 1, filas: 10 };
               <p class="m-0 text-sm text-[var(--sys-color-text-neutral-medium)]">No se ha seleccionado ningún pedido. Haga clic en el botón para realizar una selección.</p>
             </div>
           } @else {
+            @if (pedidos().length >= 2) {
+              <div class="grid gap-siaf-md sm:grid-cols-2 xl:grid-cols-4">
+                <siaf-kpi-card title="Pedidos" [amount]="'' + totales().pedidos" tone="informative" icon="receipt_long" [showProgress]="false" [compact]="true" />
+                <siaf-kpi-card title="Bienes" [amount]="'' + totales().bienes" tone="informative" icon="inventory_2" [showProgress]="false" [compact]="true" />
+                <siaf-kpi-card title="Volumen total" [amount]="formatoNumero(totales().volumen) + ' m³'" tone="informative" icon="view_in_ar" [showProgress]="false" [compact]="true" />
+                <siaf-kpi-card title="Peso total" [amount]="formatoMiles(totales().peso) + ' kg'" tone="informative" icon="scale" [showProgress]="false" [compact]="true" />
+              </div>
+            }
             <siaf-table-controls
               selectAllLabel="Seleccionar todos los pedidos"
               deleteLabel="Quitar pedidos seleccionados"
@@ -441,15 +417,11 @@ const PAGINACION_INICIAL: Paginacion = { pagina: 1, filas: 10 };
           }
         </siaf-solicitude-form-card>
 
-        <!-- ── Resumen de extracción ── -->
-        <siaf-solicitude-form-card title="Resumen de extracción">
-          <siaf-summary-card [fields]="camposResumen()" [maxPerRow]="6" [bordered]="true" [showIndicator]="true" [showClose]="false" />
-          @if (faltantes().length === 0) {
-            <siaf-alert tone="success" title="Información completa" description="Al grabar se generan las listas de extracción por operario." />
-          } @else {
-            <siaf-alert tone="info" title="Información pendiente para grabar" [description]="'Complete: ' + faltantes().join(', ') + '.'" />
-          }
-        </siaf-solicitude-form-card>
+        @if (faltantes().length === 0) {
+          <siaf-alert tone="success" title="Información completa" description="Al grabar se generan las listas de extracción por operario." />
+        } @else {
+          <siaf-alert tone="info" title="Información pendiente para grabar" [description]="'Complete: ' + faltantes().join(', ') + '.'" />
+        }
         }
       </siaf-solicitude-page-layout>
 
@@ -508,6 +480,9 @@ const PAGINACION_INICIAL: Paginacion = { pagina: 1, filas: 10 };
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SolicitudExtraccionComponent {
+  readonly formatoNumero = formatoNumero;
+  readonly formatoMiles = formatoMiles;
+
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly store = inject(ExtraccionStore);
@@ -580,7 +555,7 @@ export class SolicitudExtraccionComponent {
   readonly paginaOperarios = computed(() => this.cortar(this.operarios, this.pagOperarios()));
   readonly todosMarcados = computed(() => this.pedidos().length > 0 && this.marcados().length === this.pedidos().length);
 
-  private readonly totales = computed(() => {
+  readonly totales = computed(() => {
     const p = this.pedidos();
     return {
       pedidos: p.length,
@@ -779,6 +754,11 @@ export class SolicitudExtraccionComponent {
     this.operariosAsignados.set(asignar ? this.operarios.map((o) => o.codigo) : []);
   }
 
+  /** Cantidad de bienes de los pedidos que le tocan al operario. */
+  bienesAsignados(codigo: string): number {
+    return (this.reparto().get(codigo) ?? []).reduce((s, p) => s + p.bienes, 0);
+  }
+
   asignacionPrevista(codigo: string): string {
     const pedidos = this.reparto().get(codigo);
     if (!pedidos) return '—';
@@ -789,12 +769,9 @@ export class SolicitudExtraccionComponent {
 
   // ── Descargas ─────────────────────────────────────────────────────
   /** Sin archivo real en la muestra: baja un texto con el contenido de la lista (o de todas, sin `operario`). */
-  descargarListas(operario?: string): void {
-    const filas = this.listas().filter((l) => !operario || l.operario.codigo === operario);
-    const texto = filas
-      .map((l) => `${l.le}\nOperario: ${l.operario.codigo} - ${l.operario.nombre}\nAsignación: ${this.asignacionPrevista(l.operario.codigo)}\n`)
-      .join('\n');
-    this.descargar(texto, operario ? `${filas[0]?.le ?? 'lista-extraccion'}.txt` : 'listas-de-extraccion.txt');
+  /** Abre la lista de extracción de ejemplo (el mismo PDF para todas las listas). */
+  descargarListas(_operario?: string): void {
+    window.open(LISTA_EXTRACCION_PDF, '_blank', 'noopener');
   }
 
   descargarLpn(codigo?: string): void {

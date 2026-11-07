@@ -107,21 +107,21 @@ describe('DocumentsRecordsTableComponent — acciones de la fila de Registros', 
     ] as DocumentsRecordsColumn[]);
     fixture.componentRef.setInput('rows', [{ number: 'A-1', carton: 'Sí' }] as DocumentsRecordsRow[]);
     fixture.componentRef.setInput('rowActions', [
-      { value: 'detalle', label: 'Ver detalle', icon: 'visibility', primary: true },
-      { value: 'anular', label: 'Anular', icon: 'block' }
+      { value: 'detalle', label: 'Ver detalle', icon: 'visibility' },
+      { value: 'anular', label: 'Anular', icon: 'cancel' }
     ]);
     fixture.detectChanges();
   });
 
-  it('con rowActions reemplaza el historial por la acción primaria y el menú ⋮', () => {
+  it('con rowActions reemplaza el historial por un botón de ícono por acción', () => {
     const el: HTMLElement = fixture.nativeElement;
 
     expect(el.querySelector('[aria-label="Ver detalle"]')).not.toBeNull();
-    expect(el.querySelector('[aria-label="Más acciones del registro"]')).not.toBeNull();
+    expect(el.querySelector('[aria-label="Anular"]')).not.toBeNull();
     expect(el.querySelector('[aria-label="Ver historial del registro"]')).toBeNull();
   });
 
-  it('emite rowAction con la acción y la fila al pulsar la primaria', () => {
+  it('emite rowAction con la acción y la fila al pulsar una acción', () => {
     const emitidas: { action: string }[] = [];
     fixture.componentInstance.rowAction.subscribe((e) => emitidas.push(e));
 

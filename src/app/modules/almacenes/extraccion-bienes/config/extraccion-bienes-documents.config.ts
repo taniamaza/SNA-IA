@@ -30,11 +30,11 @@ const recordColumns: DocumentsRecordsColumn[] = [
   { key: 'status', label: 'Estado', visibility: 'visible', group: 'default', widthClass: 'w-[130px]', kind: 'flow-status' },
 ];
 
-/** Acciones de cada registro: ver el detalle (ícono) y, en el menú ⋮, reasignar y anular. */
+/** Acciones de cada registro, como íconos directos: ver detalle, reasignar y anular. */
 export const ACCIONES_REGISTRO: DocumentsRecordsRowAction[] = [
-  { value: 'detalle', label: 'Ver detalle', icon: 'visibility', primary: true },
+  { value: 'detalle', label: 'Ver detalle', icon: 'visibility' },
   { value: 'reasignar', label: 'Reasignar', icon: 'swap_horiz' },
-  { value: 'anular', label: 'Anular', icon: 'block' },
+  { value: 'anular', label: 'Anular', icon: 'cancel' },
 ];
 
 const filterCampoOptions: DocumentsRecordsFilterOption[] = [

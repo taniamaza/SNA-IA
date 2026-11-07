@@ -5190,7 +5190,7 @@ export const MANIFIESTO_UI_KIT: readonly FichaComponente[] = [
     "capa": "ui",
     "importacion": "@siaf/ui/documents-records-table/documents-records-table.component",
     "archivo": "src/app/shared/ui/documents-records-table/documents-records-table.component.ts",
-    "descripcion": "Tabla de las pestañas Documentos / Registros: columnas configurables, celdas por tipo\n(enlace al documento, tag de flujo, tag de registro, check/equis), checkbox de selección y botón de historial.\nCon `rowActions`, la fila de Registros trae en su lugar las acciones de la configuración: la primaria como ícono\n(ver detalle) y las demás en el menú ⋮ (reasignar, anular); la elegida sale por `rowAction`.\n\nEs la tabla interna de `siaf-documents-records-page`; para una grilla nueva compón la grilla\nestándar (`siaf-table-controls` arriba + `siaf-pagination Bottom` abajo) alrededor de ella.",
+    "descripcion": "Tabla de las pestañas Documentos / Registros: columnas configurables, celdas por tipo\n(enlace al documento, tag de flujo, tag de registro, check/equis), checkbox de selección y botón de historial.\nCon `rowActions`, la fila de Registros trae en su lugar las acciones de la configuración (ver detalle, reasignar,\nanular…), cada una como botón de ícono; la elegida sale por `rowAction`.\n\nEs la tabla interna de `siaf-documents-records-page`; para una grilla nueva compón la grilla\nestándar (`siaf-table-controls` arriba + `siaf-pagination Bottom` abajo) alrededor de ella.",
     "usaSesion": false,
     "proyectaContenido": false,
     "entradas": [
@@ -5234,7 +5234,7 @@ export const MANIFIESTO_UI_KIT: readonly FichaComponente[] = [
         "tipo": "DocumentsRecordsRowAction[]",
         "porDefecto": null,
         "requerida": false,
-        "descripcion": "Acciones de la fila en Registros: la primaria va como ícono y el resto en el menú ⋮."
+        "descripcion": "Acciones de la fila en Registros: cada una va como botón de ícono."
       },
       {
         "nombre": "rows",
@@ -5374,7 +5374,6 @@ export const MANIFIESTO_UI_KIT: readonly FichaComponente[] = [
       "[siafTooltip]",
       "siaf-flow-status-tag",
       "siaf-icon",
-      "siaf-icon-dropdown-menu",
       "siaf-record-status-tag"
     ],
     "sinUso": false

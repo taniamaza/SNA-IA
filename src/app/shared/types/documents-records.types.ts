@@ -41,13 +41,12 @@ export type DocumentsRecordsColumn = {
 };
 
 /**
- * Acción de la fila de la pestaña Registros. La de `primary: true` va como botón de ícono; las demás, en el menú ⋮.
+ * Acción de la fila de la pestaña Registros, pintada como botón de ícono.
  */
 export type DocumentsRecordsRowAction = {
   value: string;
   label: string;
   icon?: string;
-  primary?: boolean;
 };
 
 export type DocumentsRecordsFilterOption = {

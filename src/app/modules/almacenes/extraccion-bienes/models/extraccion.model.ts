@@ -109,7 +109,14 @@ export const ETIQUETA_METODO: Record<MetodoExtraccion, string> = {
 };
 
 /** Volumen o peso con dos decimales y coma de millares, como en el diseño (`1.10 m³`). */
-export const formatoNumero = (valor: number): string => valor.toFixed(2);
+/** Separador de miles con espacio (1 250). */
+export const formatoMiles = (valor: number): string => Math.round(valor).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+
+/** Dos decimales y miles con espacio (1 250.00). */
+export const formatoNumero = (valor: number): string => {
+  const [entero, decimales] = valor.toFixed(2).split('.');
+  return `${entero.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}.${decimales}`;
+};
 
 const SEMILLA_ENTIDAD = 'Dirección General de Abastecimiento';
 export const ENTE_RECTOR = SEMILLA_ENTIDAD;
